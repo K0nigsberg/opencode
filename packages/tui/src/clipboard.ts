@@ -94,6 +94,22 @@ export function copyCommand(
   }
 }
 
+const COPY_FAILED =
+  "Clipboard copy failed: install xclip or xsel (X11) or wl-clipboard (Wayland)"
+
+// How long to wait for a clipboard backend before giving up. Some backends (the
+// bundled xsel fallback shipped with clipboardy) never settle when there is no
+// display to connect to, so a bounded timeout is the only way to surface that as
+// a failure instead of hanging the caller — and the toast — forever.
+const WRITE_TIMEOUT_MS = 3000
+
+async function clipboardyWrite(text: string) {
+  const { default: clipboardy } = await import("clipboardy")
+  await clipboardy.write(text).catch(() => {
+    throw new Error(COPY_FAILED)
+  })
+}
+
 let copyMethod: Promise<(text: string) => Promise<void>> | undefined
 
 function getCopyMethod() {
@@ -103,23 +119,31 @@ function getCopyMethod() {
     if (native?.[0] === "osascript") {
       return async (text: string) => {
         const escaped = text.replace(/\\/g, "\\\\").replace(/"/g, '\\"')
-        await command("osascript", ["-e", `set the clipboard to "${escaped}"`]).catch(() => undefined)
+        await command("osascript", ["-e", `set the clipboard to "${escaped}"`]).catch(() => clipboardyWrite(text))
       }
     }
     if (native) {
       return async (text: string) => {
-        await command(native[0], native.slice(1), text).catch(() => undefined)
+        await command(native[0], native.slice(1), text).catch(() => clipboardyWrite(text))
       }
     }
-    return async (text: string) => {
-      const { default: clipboardy } = await import("clipboardy")
-      await clipboardy.write(text).catch(() => undefined)
-    }
+    return clipboardyWrite
   })())
 }
 
+// Rejects when no clipboard backend accepted the text, so callers never report a copy
+// that did not happen. OSC 52 is still sent first, but many terminals (GNOME Terminal/VTE)
+// ignore it, so it is not treated as proof of success. A backend that neither completes
+// nor errors (e.g. the bundled xsel fallback with no display) is turned into a rejection
+// by the timeout guard so the user sees the real outcome instead of a hanging toast.
 export async function write(text: string) {
   writeOsc52(text)
   const method = await getCopyMethod()
-  await method(text)
+  let timer: NodeJS.Timeout | undefined
+  const timed = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(COPY_FAILED)), WRITE_TIMEOUT_MS).unref?.()
+  })
+  await Promise.race([method(text), timed]).finally(() => {
+    if (timer) clearTimeout(timer)
+  })
 }
