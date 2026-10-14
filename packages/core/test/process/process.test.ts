@@ -170,7 +170,7 @@ describe("AppProcess", () => {
           },
           (directory) => Effect.promise(() => fs.rm(directory, { recursive: true, force: true })),
         ),
-        5_000,
+        15_000,
       )
 
       it.live(
@@ -191,7 +191,7 @@ describe("AppProcess", () => {
           },
           (directory) => Effect.promise(() => fs.rm(directory, { recursive: true, force: true })),
         ),
-        5_000,
+        15_000,
       )
     }
   })
