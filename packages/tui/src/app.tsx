@@ -809,7 +809,10 @@ function App() {
         category: "Session",
         palette: undefined,
         enabled: () => !sessionTabs.enabled(),
-        run: () => local.session.quickSwitch(i + 1),
+        run: () => {
+          local.session.quickSwitch(i + 1)
+          setTimeout(() => promptRef.current?.focus(), 0)
+        },
       })),
       {
         name: "session.tab.next",
@@ -817,7 +820,10 @@ function App() {
         category: "Session",
         palette: undefined,
         enabled: sessionTabs.enabled,
-        run: () => sessionTabs.cycle(1),
+        run: () => {
+          sessionTabs.cycle(1)
+          setTimeout(() => promptRef.current?.focus(), 0)
+        },
       },
       {
         name: "session.tab.previous",
@@ -825,7 +831,10 @@ function App() {
         category: "Session",
         palette: undefined,
         enabled: sessionTabs.enabled,
-        run: () => sessionTabs.cycle(-1),
+        run: () => {
+          sessionTabs.cycle(-1)
+          setTimeout(() => promptRef.current?.focus(), 0)
+        },
       },
       {
         name: "session.tab.next_unread",
@@ -833,7 +842,10 @@ function App() {
         category: "Session",
         palette: undefined,
         enabled: sessionTabs.enabled,
-        run: () => sessionTabs.cycleUnread(1),
+        run: () => {
+          sessionTabs.cycleUnread(1)
+          setTimeout(() => promptRef.current?.focus(), 0)
+        },
       },
       {
         name: "session.tab.previous_unread",
@@ -841,7 +853,10 @@ function App() {
         category: "Session",
         palette: undefined,
         enabled: sessionTabs.enabled,
-        run: () => sessionTabs.cycleUnread(-1),
+        run: () => {
+          sessionTabs.cycleUnread(-1)
+          setTimeout(() => promptRef.current?.focus(), 0)
+        },
       },
       {
         name: "session.tab.close",
@@ -863,7 +878,10 @@ function App() {
         category: "Session",
         palette: undefined,
         enabled: sessionTabs.enabled,
-        run: () => sessionTabs.selectIndex(i),
+        run: () => {
+          sessionTabs.selectIndex(i)
+          setTimeout(() => promptRef.current?.focus(), 0)
+        },
       })),
       {
         name: "model.list",
