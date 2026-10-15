@@ -17,7 +17,7 @@ import {
 } from "@opentui/core"
 import { useRenderer, useTerminalDimensions } from "@opentui/solid"
 import { normalizePromptContent } from "../prompt/content"
-import { deduplicatePromptImages, promptAttachmentLabel } from "../prompt/attachment"
+import { deduplicatePromptImages, isPromptImageUri, promptAttachmentLabel } from "../prompt/attachment"
 import { resolvePastedAttachments } from "../component/prompt/local-attachment"
 import { createTuiClipboard, type OwnedClipboardService } from "../clipboard"
 import type { ClipboardService } from "../context/clipboard"
@@ -393,7 +393,7 @@ export function createPromptState(input: PromptInput): PromptState {
     ),
   )
   const images = createMemo(() =>
-    (deduplicatePromptImages(attachments()) ?? []).filter((file) => file.uri.startsWith("data:image/")),
+    (deduplicatePromptImages(attachments()) ?? []).filter((file) => isPromptImageUri(file.uri)),
   )
   let clipboard: OwnedClipboardService | undefined
   let pasteQueue: Promise<void> | undefined

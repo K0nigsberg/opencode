@@ -97,7 +97,7 @@ describe("prompt local attachments", () => {
 
     for (const input of [file, `'${file}'`, pathToFileURL(file).href]) {
       expect(await resolvePastedAttachments(input, process.platform)).toEqual([
-        { type: "file", uri: "data:image/png;base64,AQID", filename: "one image.png" },
+        { type: "file", uri: pathToFileURL(file).href, filename: "one image.png" },
       ])
     }
   })
@@ -113,8 +113,8 @@ describe("prompt local attachments", () => {
       `# dropped files\r\n${pathToFileURL(image).href}\r\n${pathToFileURL(pdf).href}`,
     ]) {
       expect(await resolvePastedAttachments(input, process.platform)).toEqual([
-        { type: "file", uri: "data:image/png;base64,AQID", filename: "one image.png" },
-        { type: "file", uri: "data:application/pdf;base64,BAUG", filename: "two file.pdf" },
+        { type: "file", uri: pathToFileURL(image).href, filename: "one image.png" },
+        { type: "file", uri: pathToFileURL(pdf).href, filename: "two file.pdf" },
       ])
     }
   })
@@ -159,7 +159,7 @@ describe("prompt local attachments", () => {
     ])
 
     expect(await resolvePastedAttachments(`${image} ${svg}`, process.platform)).toMatchObject([
-      { type: "file", filename: "image.png" },
+      { type: "file", uri: pathToFileURL(image).href, filename: "image.png" },
       { type: "text", content, filename: "image.svg" },
     ])
     await Bun.write(svg, content + " ")

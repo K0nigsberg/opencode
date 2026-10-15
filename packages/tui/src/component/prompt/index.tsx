@@ -61,6 +61,7 @@ import { Slot } from "../../plugin/render"
 import type { SessionInbox } from "@opencode/schema/session-inbox"
 import {
   deduplicatePromptImages,
+  isPromptImageUri,
   preserveMentionlessPromptAttachments,
   promptAttachmentLabel,
 } from "../../prompt/attachment"
@@ -392,7 +393,7 @@ export function Prompt(props: PromptProps) {
   }
 
   const imageAttachments = createMemo(() =>
-    (deduplicatePromptImages(store.prompt.files) ?? []).filter((file) => file.uri.startsWith("data:image/")),
+    (deduplicatePromptImages(store.prompt.files) ?? []).filter((file) => isPromptImageUri(file.uri)),
   )
   const imagePreviewHeight = createMemo(() => Math.max(4, Math.min(8, Math.floor(dimensions().height / 4))))
   const imagePreviewWidth = createMemo(() => imagePreviewHeight() * 2)
