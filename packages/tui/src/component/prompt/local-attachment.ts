@@ -1,5 +1,4 @@
 import path from "node:path"
-import { pathToFileURL } from "node:url"
 
 // Bound filesystem work per terminal paste; the byte budget also bounds staged data.
 const MAX_PASTED_FILEPATHS = 32
@@ -51,12 +50,13 @@ export async function resolvePastedAttachments(text: string, platform: string) {
     if (item.attachment.type === "text") {
       return { type: "text" as const, content: item.attachment.content, filename }
     }
-    // Keep the short display name, and pass the path as a file:// URI so
-    // admission retains source.uri and toLLMMessages can expose the location.
+    // Embed bytes at paste time (remote servers / ephemeral paths) and carry
+    // the absolute path in description for model-visible location text.
     return {
       type: "file" as const,
-      uri: pathToFileURL(item.filepath).href,
+      uri: `data:${item.attachment.mime};base64,${Buffer.from(item.attachment.content).toString("base64")}`,
       filename,
+      description: item.filepath,
     }
   })
 }

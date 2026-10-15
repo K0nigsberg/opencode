@@ -1475,10 +1475,14 @@ export function Prompt(props: PromptProps) {
     }, 0)
   }
 
-  function pasteAttachment(file: { filename?: string; uri: string }) {
+  function pasteAttachment(file: { filename?: string; uri: string; description?: string }) {
     const currentOffset = input.cursorOffset
     const extmarkStart = currentOffset
-    const virtualText = promptAttachmentLabel(store.prompt.files, { uri: file.uri, name: file.filename })
+    const virtualText = promptAttachmentLabel(store.prompt.files, {
+      uri: file.uri,
+      name: file.filename,
+      description: file.description,
+    })
     const extmarkEnd = extmarkStart + virtualText.length
     const textToInsert = virtualText + " "
 
@@ -1495,6 +1499,7 @@ export function Prompt(props: PromptProps) {
     const part: NonNullable<PromptInfo["files"]>[number] = {
       uri: file.uri,
       name: file.filename,
+      description: file.description,
       mention: {
         start: extmarkStart,
         end: extmarkEnd,

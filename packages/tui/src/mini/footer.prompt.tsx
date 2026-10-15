@@ -840,10 +840,14 @@ export function createPromptState(input: PromptInput): PromptState {
         }
   }
 
-  const pasteAttachment = (file: { uri: string; filename?: string }) => {
+  const pasteAttachment = (file: { uri: string; filename?: string; description?: string }) => {
     if (!area || area.isDestroyed) return
     syncDraft()
-    const value = promptAttachmentLabel(attachments(), { uri: file.uri, name: file.filename })
+    const value = promptAttachmentLabel(attachments(), {
+      uri: file.uri,
+      name: file.filename,
+      description: file.description,
+    })
     area.insertText(value + " ")
     const end = area.cursorOffset - 1
     const start = end - stringWidth(value)
@@ -853,6 +857,7 @@ export function createPromptState(input: PromptInput): PromptState {
       type: "file",
       url: file.uri,
       filename: file.filename,
+      description: file.description,
       mime: file.uri.slice(5, file.uri.indexOf(";")),
       source: { type: "file", text: { start, end, value } },
     })
